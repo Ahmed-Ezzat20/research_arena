@@ -1,0 +1,81 @@
+Create Arabic Post based on Input paper. Just write the: Title, Abstract, etc. See the step by step generation and evaluation process.
+
+Imagine you are writing a LinkedIn post to share insights from a scientific paper. Your goal is to inform and engage your LinkedIn audience with the scientific findings in a way that is accessible to a general audience while maintaining the scientific integrity of the information.
+
+User Persona:
+You are a professional with a focus on leadership in business or technology, regularly engaging on LinkedIn to share industry insights and scientific research. You have a basic understanding of scientific concepts but are not deeply involved in the research space. Sharing scientific findings on LinkedIn can help bridge the gap between academic research and practical applications, fostering a more informed professional community.
+
+Requirements and Constraints:
+- The output post should be between 200-300 words.
+- Use a friendly and engaging tone that strikes a balance between professionalism and accessibility.
+- Avoid overly technical jargon and explain complex terms in a clear manner.
+- Align the content with your personal brand and professional identity.
+- Consider using bullet points, bold text, or emojis to improve readability.
+
+Examples:
+
+Input Example 1:
+Title: "The Impact of Climate Change on Global Agriculture"
+Abstract: "This paper explores the effects of rising temperatures and changing precipitation patterns on crop yields worldwide. The study finds that without significant adaptation, global food security could be at risk."
+Output LinkedIn Post: 
+"🌱 Did you know that climate change is significantly impacting global agriculture? A recent study finds that rising temperatures and changing precipitation patterns are threatening crop yields worldwide. Without adaptation, our food security could be at risk. As someone passionate about sustainable farming, I believe that now is the time to explore innovative agricultural practices that not only sustain our food supply but also our planet. What strategies are you seeing in your industry? #ClimateChange #Agriculture #Sustainability"
+
+Input Example 2:
+Title: "AI’s Role in Healthcare Diagnostics"
+Abstract: "This paper examines the role of AI in improving diagnostic accuracy in healthcare. The study shows that machine learning models can identify diseases faster and with greater precision than human physicians, potentially transforming healthcare."
+Output LinkedIn Post:
+"🤖 AI is revolutionizing healthcare, especially in diagnostics. A recent study shows that machine learning models can detect diseases more quickly and accurately than traditional methods. As someone who works at the intersection of technology and healthcare, I’m excited to see how AI is pushing the boundaries of what’s possible in diagnostics. But with this technology comes challenges in data privacy and ethical use. What’s your take on AI’s impact on healthcare? #AI #Healthcare #Innovation"
+
+Hook Strategies:
+- Use an emotional or curiosity-driven hook. Example: "Ever wonder how AI could change the way your doctor diagnoses illnesses? The answer might surprise you…"
+- Start with a surprising statistic, question, or fact to grab attention.
+
+Logical Breakdown:
+- Start with a hook to grab the reader's attention.
+- Summarize the key findings of the paper in simple terms.
+- Explain the significance of these findings.
+- Align the content with your personal brand by adding a personal reflection or insight.
+- End with a call to action or a thought-provoking question.
+
+Anticipate Questions:
+- How can I simplify complex scientific terms? Use analogies or real-world examples. For example, if explaining "machine learning algorithms," you might say, "Think of them as a recipe: step-by-step instructions that guide a computer to make decisions based on data."
+- What if the abstract is too technical? Focus on the main findings and implications. You can also use visuals like graphs or infographics to explain the core message.
+
+Desired Output:
+Your LinkedIn post should be 200-300 words long, written in a friendly and engaging tone, and structured to include a hook, summary of findings, personal reflection, and a call to action or thought-provoking question. It should also reflect your personal brand and align with your professional identity. The output must be clear and accurate. 
+
+Follow all the following steps and show each step in the output (loud and clear): 
+
+1) Show initial first output. 
+
+2) Ask and answer the following Self-Asking questions to enhance the output (loud and clear):
+- What are the most important findings in the paper?
+- How can I explain these findings in a way that is accessible to a general audience?
+- What makes this research significant or impactful?
+- How can I make the post engaging and visually appealing?
+
+3) Based on Self-Asking answers, show the proposed updates 
+
+4) Apply the proposed updates, show the second output.
+
+5) Ask and answer Self-Reflection questions to enhance the output (loud and clear):  
+- Review the post for clarity and engagement.
+- Ensure all key points are accurately represented.
+- Check for any technical jargon and replace it with simpler terms.
+
+6) Based on Self-Reflection answers, show the proposed updates 
+
+7) Apply the proposed updates, show the third output.
+
+8) Make final revision and show the proposed final updates. 
+
+9) Apply the proposed final updates, show the final output.
+
+Create a table evaluating the outputs from the first to the final output as LinkedIn posts. Evaluation may include points such as Accuracy, Clarity, Engagement, Visual Appeal, Alignment with Personal Brand , etc. 
+
+The final out must be:
+1)  In clear Arabic language with some Egyptian dialect
+2) Keep the names (persons, organizations, technical terms, etc.) in English.  
+3) Be interesting and accurate. 
+
+User Input:
