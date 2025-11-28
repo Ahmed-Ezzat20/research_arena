@@ -4,16 +4,15 @@ Configuration and environment setup for the Agentic Research Assistant.
 
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
 
-# Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# LLM Provider Configuration
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")  # Default to Gemini
 
 # Model configuration
-GEMINI_MODEL_NAME = "gemini-2.5-flash"
+GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-2.0-flash-exp")
 
 # Logging configuration
 MAX_LOG_BUFFER_SIZE = 1000
