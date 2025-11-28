@@ -9,6 +9,7 @@ from src.tools import (
     write_social_media_post,
     process_uploaded_pdf,
     generate_paper_infographic,
+    verify_document_sources,
 )
 
 
@@ -86,6 +87,28 @@ tools = [
                     "required": ["paper_info"],
                 },
             },
+            {
+                "name": "verify_document_sources",
+                "description": "Perform advanced source verification on a research document. Validates references against academic databases (Semantic Scholar, CrossRef), extracts and fact-checks verifiable claims, and detects potential issues like hallucinated citations or unsubstantiated claims. Returns a comprehensive verification report.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "document_text": {
+                            "type": "string",
+                            "description": "The full document text to verify (research paper, article, report, etc.)",
+                        },
+                        "verify_claims": {
+                            "type": "boolean",
+                            "description": "Whether to extract and verify claims (default: true)",
+                        },
+                        "verify_references": {
+                            "type": "boolean",
+                            "description": "Whether to validate references and citations (default: true)",
+                        }
+                    },
+                    "required": ["document_text"],
+                },
+            },
         ]
     }
 ]
@@ -97,4 +120,5 @@ function_map = {
     "write_social_media_post": write_social_media_post,
     "process_uploaded_pdf": process_uploaded_pdf,
     "generate_paper_infographic": generate_paper_infographic,
+    "verify_document_sources": verify_document_sources,
 }

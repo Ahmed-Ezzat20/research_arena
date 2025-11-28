@@ -13,6 +13,12 @@ from .infographic import (
     generate_infographic_from_text,
     generate_infographic_from_pdf,
 )
+from .verification import (
+    verify_text_input,
+    verify_pdf_input,
+    quick_verify_text_references,
+    quick_verify_text_claims,
+)
 
 __all__ = [
     "chat",
@@ -26,4 +32,8 @@ __all__ = [
     "change_log_level",
     "generate_infographic_from_text",
     "generate_infographic_from_pdf",
+    "verify_text_input",
+    "verify_pdf_input",
+    "quick_verify_text_references",
+    "quick_verify_text_claims",
 ]

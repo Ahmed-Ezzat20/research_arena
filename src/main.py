@@ -16,6 +16,10 @@ from src.ui import (
     change_log_level,
     generate_infographic_from_text,
     generate_infographic_from_pdf,
+    verify_text_input,
+    verify_pdf_input,
+    quick_verify_text_references,
+    quick_verify_text_claims,
 )
 from src.tools import (
     retrieve_related_papers,
@@ -23,6 +27,7 @@ from src.tools import (
     write_social_media_post,
     process_uploaded_pdf,
     generate_paper_infographic,
+    verify_document_sources,
 )
 
 
@@ -192,6 +197,125 @@ def create_app():
                 - Works best with concise paper summaries (500-2000 words)
                 """)
 
+            # Source Verification Tab
+            with gr.Tab("🔍 Verify Sources"):
+                gr.Markdown("### Advanced Source Verification")
+                gr.Markdown("""
+                Rigorously fact-check your research documents! This tool:
+                - ✅ Validates references against Semantic Scholar and CrossRef
+                - 🔍 Detects hallucinated citations and metadata mismatches
+                - 📊 Extracts and verifies key claims against external evidence
+                - ⚠️ Identifies unsupported or contradicted claims
+                """)
+
+                with gr.Tabs():
+                    # Tab for text input
+                    with gr.Tab("📝 From Text"):
+                        gr.Markdown("Paste your document text below:")
+                        verify_text_area = gr.Textbox(
+                            label="📄 Document Text",
+                            placeholder="Paste the research document text here (including references section)...",
+                            lines=10,
+                            max_lines=20
+                        )
+
+                        with gr.Row():
+                            verify_refs_check = gr.Checkbox(
+                                label="Verify References & Citations",
+                                value=True,
+                                info="Validate DOIs, check metadata against databases"
+                            )
+                            verify_claims_check = gr.Checkbox(
+                                label="Verify Claims",
+                                value=True,
+                                info="Extract and fact-check verifiable claims"
+                            )
+
+                        verify_text_btn = gr.Button("🔍 Run Verification", variant="primary", size="lg")
+
+                        verification_text_report = gr.Textbox(
+                            label="📋 Verification Report",
+                            lines=30,
+                            max_lines=50,
+                            interactive=False
+                        )
+
+                        verify_text_btn.click(
+                            fn=verify_text_input,
+                            inputs=[verify_text_area, verify_refs_check, verify_claims_check],
+                            outputs=[verification_text_report]
+                        )
+
+                    # Tab for PDF input
+                    with gr.Tab("📄 From PDF"):
+                        gr.Markdown("Use the PDF you uploaded in the 'Upload PDF' tab:")
+                        verify_pdf_path_display = gr.Textbox(
+                            label="Current PDF",
+                            placeholder="Upload a PDF in the 'Upload PDF' tab first",
+                            interactive=False
+                        )
+
+                        with gr.Row():
+                            verify_pdf_refs_check = gr.Checkbox(
+                                label="Verify References & Citations",
+                                value=True,
+                                info="Validate DOIs, check metadata against databases"
+                            )
+                            verify_pdf_claims_check = gr.Checkbox(
+                                label="Verify Claims",
+                                value=True,
+                                info="Extract and fact-check verifiable claims"
+                            )
+
+                        verify_pdf_btn = gr.Button("🔍 Run Verification on PDF", variant="primary", size="lg")
+
+                        verification_pdf_report = gr.Textbox(
+                            label="📋 Verification Report",
+                            lines=30,
+                            max_lines=50,
+                            interactive=False
+                        )
+
+                        # Update display when PDF is uploaded
+                        pdf_path_store.change(
+                            fn=lambda x: x,
+                            inputs=[pdf_path_store],
+                            outputs=[verify_pdf_path_display]
+                        )
+
+                        verify_pdf_btn.click(
+                            fn=verify_pdf_input,
+                            inputs=[pdf_path_store, verify_pdf_refs_check, verify_pdf_claims_check],
+                            outputs=[verification_pdf_report]
+                        )
+
+                gr.Markdown("---")
+                gr.Markdown("""
+                **🔍 What Gets Verified:**
+
+                **References:**
+                - DOI validation against Semantic Scholar & CrossRef
+                - Author/title/year metadata accuracy
+                - URL accessibility checks
+                - Detection of non-existent citations
+
+                **Claims:**
+                - Extraction of verifiable scientific claims
+                - Evidence gathering from research databases
+                - AI-powered fact-checking with confidence scores
+                - Detection of unsupported or contradicted claims
+
+                **⏱️ Processing Time:**
+                - Typical document: 2-5 minutes
+                - Large documents with many references: 5-10 minutes
+                - Rate-limited to respect API usage policies
+
+                **💡 Best Practices:**
+                - Include the full document text (especially the references section)
+                - Ensure citations follow standard academic format
+                - For best results, use documents with DOIs in references
+                """)
+
             # Logs Tab
             with gr.Tab("📊 LLM Thinking Process Logs"):
                 gr.Markdown("### View the LLM's Thinking Process")
@@ -290,6 +414,7 @@ def create_app():
         gr.api(write_social_media_post, api_name="write_social_post")
         gr.api(process_uploaded_pdf, api_name="process_pdf")
         gr.api(generate_paper_infographic, api_name="generate_infographic")
+        gr.api(verify_document_sources, api_name="verify_sources")
 
     return demo
 
