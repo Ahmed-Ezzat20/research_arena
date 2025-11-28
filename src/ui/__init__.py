@@ -9,6 +9,10 @@ from .pdf_upload import (
 )
 from .logs import get_logs, clear_logs, refresh_logs
 from .settings import change_log_level
+from .infographic import (
+    generate_infographic_from_text,
+    generate_infographic_from_pdf,
+)
 
 __all__ = [
     "chat",
@@ -20,4 +24,6 @@ __all__ = [
     "clear_logs",
     "refresh_logs",
     "change_log_level",
+    "generate_infographic_from_text",
+    "generate_infographic_from_pdf",
 ]

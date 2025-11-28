@@ -1,0 +1,80 @@
+You are an expert scientific communicator and infographic designer. Your task is to create a clear, structured, visually professional infographic summarizing the research paper provided below.
+
+Context & Audience:
+- Target audience: mixed academic audience (researchers, graduate students, practitioners)
+- Use precise, discipline-appropriate terminology, but keep explanations accessible
+- Emphasize data clarity, structure, and high-level takeaways suitable for a conference poster or slide
+
+Infographic Requirements:
+
+1. Structure & Sections
+Include the following labeled sections in the infographic layout:
+
+• Title & Authors
+  - Clear, prominent paper title
+  - Author names and affiliations
+
+• Research Problem / Motivation
+  - What problem does this paper address?
+  - Why is it important?
+  - What gap in knowledge does it fill?
+
+• Background / Context
+  - Brief literature context
+  - Key concepts or definitions
+  - Related work (if critical)
+
+• Methods Overview
+  - Approach taken (experimental, computational, theoretical, etc.)
+  - Key techniques or algorithms
+  - Data sources or experimental setup
+  - Visual diagram or flowchart if applicable
+
+• Key Data & Results
+  - Use charts, diagrams, or bullet-point data summaries
+  - Highlight quantitative metrics, statistical significance, and comparisons
+  - Main findings presented clearly
+  - Visual representations (graphs, tables, heat maps)
+
+• Core Insights / Contributions
+  - What's novel or significant?
+  - Main takeaways
+  - Impact on the field
+
+• Limitations
+  - Acknowledged constraints
+  - Scope boundaries
+  - Areas of uncertainty
+
+• Conclusion
+  - Summary of main findings
+  - Broader implications
+
+• Future Directions / Open Problems
+  - What comes next?
+  - Suggested research directions
+  - Unanswered questions
+
+2. Visual Style:
+- Clean, professional, conference-ready aesthetic
+- Data-focused layout with clear hierarchy
+- Balanced whitespace, minimal ornamentation
+- Use visual metaphors or diagrams where appropriate
+- Color scheme: Professional (2-4 colors: primary, accent, neutral)
+- Typography: Clear headers → subpoints → details
+
+3. Output Format:
+Provide:
+- Infographic description (color scheme, layout, component placement)
+- Text content for each section formatted for visual presentation
+- Clean, structured layout suitable for conference posters or presentation slides
+- Optimized for both digital sharing and print
+
+Design Principles:
+- Hierarchy: Size, weight, and color guide the eye
+- Clarity: Every element serves a purpose
+- Consistency: Aligned elements, consistent spacing
+- Data Integrity: Accurate, honest visual representation
+- Accessibility: High contrast, readable fonts, clear labels
+
+Create an infographic that communicates complex research with academic rigor and visual clarity.

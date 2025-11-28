@@ -14,12 +14,15 @@ from src.ui import (
     clear_logs,
     refresh_logs,
     change_log_level,
+    generate_infographic_from_text,
+    generate_infographic_from_pdf,
 )
 from src.tools import (
     retrieve_related_papers,
     explain_research_paper,
     write_social_media_post,
     process_uploaded_pdf,
+    generate_paper_infographic,
 )
 
 
@@ -105,6 +108,89 @@ def create_app():
                     inputs=[pdf_path_store],
                     outputs=[pdf_output]
                 )
+
+            # Infographic Generator Tab
+            with gr.Tab("🎨 Generate Infographic"):
+                gr.Markdown("### Paper-to-Infographic Generator")
+                gr.Markdown("Transform research papers into beautiful, shareable infographics! Perfect for social media and presentations.")
+
+                with gr.Tabs():
+                    # Tab for text input
+                    with gr.Tab("📝 From Text"):
+                        gr.Markdown("Paste your paper text or summary below:")
+                        infographic_text_input = gr.Textbox(
+                            label="📄 Paper Text or Summary",
+                            placeholder="Paste the research paper text or a detailed summary here...",
+                            lines=10,
+                            max_lines=20
+                        )
+                        generate_text_btn = gr.Button("🎨 Generate Infographic", variant="primary", size="lg")
+
+                        with gr.Row():
+                            with gr.Column():
+                                infographic_text_status = gr.Textbox(
+                                    label="📋 Status",
+                                    lines=8,
+                                    interactive=False
+                                )
+                            with gr.Column():
+                                infographic_text_image = gr.Image(
+                                    label="🖼️ Generated Infographic",
+                                    type="filepath",
+                                    interactive=False
+                                )
+
+                        generate_text_btn.click(
+                            fn=generate_infographic_from_text,
+                            inputs=[infographic_text_input],
+                            outputs=[infographic_text_status, infographic_text_image]
+                        )
+
+                    # Tab for PDF input
+                    with gr.Tab("📄 From PDF"):
+                        gr.Markdown("Use the PDF you uploaded in the 'Upload PDF' tab:")
+                        pdf_path_display = gr.Textbox(
+                            label="Current PDF",
+                            placeholder="Upload a PDF in the 'Upload PDF' tab first",
+                            interactive=False
+                        )
+                        generate_pdf_btn = gr.Button("🎨 Generate Infographic from PDF", variant="primary", size="lg")
+
+                        with gr.Row():
+                            with gr.Column():
+                                infographic_pdf_status = gr.Textbox(
+                                    label="📋 Status",
+                                    lines=8,
+                                    interactive=False
+                                )
+                            with gr.Column():
+                                infographic_pdf_image = gr.Image(
+                                    label="🖼️ Generated Infographic",
+                                    type="filepath",
+                                    interactive=False
+                                )
+
+                        # Update display when PDF is uploaded in the other tab
+                        pdf_path_store.change(
+                            fn=lambda x: x,
+                            inputs=[pdf_path_store],
+                            outputs=[pdf_path_display]
+                        )
+
+                        generate_pdf_btn.click(
+                            fn=generate_infographic_from_pdf,
+                            inputs=[pdf_path_store],
+                            outputs=[infographic_pdf_status, infographic_pdf_image]
+                        )
+
+                gr.Markdown("---")
+                gr.Markdown("""
+                **💡 Tips:**
+                - Infographics are saved in the `generated_infographics/` folder
+                - Perfect for sharing on LinkedIn, Twitter, and Instagram
+                - Use the download button (⬇️) to save the image
+                - Works best with concise paper summaries (500-2000 words)
+                """)
 
             # Logs Tab
             with gr.Tab("📊 LLM Thinking Process Logs"):
@@ -193,6 +279,9 @@ def create_app():
                 - ⚠️ Warning or fallback
                 - 🔍 Function called
                 - 📚 Data retrieved
+                - 🎨 Infographic generation
+                - 📊 Structured summary
+                - 🖼️ Image generation
                 """)
 
         # Register API endpoints
@@ -200,6 +289,7 @@ def create_app():
         gr.api(explain_research_paper, api_name="explain_paper")
         gr.api(write_social_media_post, api_name="write_social_post")
         gr.api(process_uploaded_pdf, api_name="process_pdf")
+        gr.api(generate_paper_infographic, api_name="generate_infographic")
 
     return demo
 

@@ -16,7 +16,7 @@ python demo.py
 The application launches a Gradio web interface with:
 - Public sharing enabled (`share=True`)
 - MCP server enabled for external tool access
-- Multiple tabs: Chat, PDF Upload, Logs, and Settings
+- Multiple tabs: Chat, PDF Upload, Generate Infographic, Logs, and Settings
 
 ## Environment Setup
 
@@ -45,13 +45,14 @@ pip install gradio google-generativeai arxiv python-dotenv pypdf
 - Configured with function calling (tools) for agentic behavior
 - All LLM interactions logged with emoji-based visual indicators
 
-**2. Tool/Function System (`demo.py:350-420`)**
-The assistant has 4 registered tools that Gemini can call:
+**2. Tool/Function System**
+The assistant has 5 registered tools that Gemini can call:
 
 - `retrieve_related_papers(query)` - Searches arXiv with LLM-refined queries and LLM-ranked results
 - `explain_research_paper(paper_info)` - Explains papers using the explainer prompt
 - `write_social_media_post(explanation)` - Creates LinkedIn posts using the post prompt
 - `process_uploaded_pdf(pdf_path)` - Analyzes uploaded PDFs
+- `generate_paper_infographic(paper_info)` - **NEW!** Generates visual infographics from paper summaries
 
 **3. Multimodal Chat (`demo.py:426-570`)**
 - Handles both text and file uploads (PDFs, images)
@@ -77,6 +78,12 @@ The assistant has 4 registered tools that Gemini can call:
 - Multi-step generation with self-asking and self-reflection
 - Includes evaluation table of iterative improvements
 
+**infographic_prompt.txt** ✨ **NEW!**
+- Guides infographic design with professional layout principles
+- Defines visual hierarchy, color psychology, and iconography
+- Specifies modern, academic-yet-accessible aesthetic
+- Optimized for social media and presentation formats
+
 ### Error Handling Patterns
 
 **Malformed Function Calls (`demo.py:491-503`)**
@@ -97,6 +104,13 @@ If LLM-based refinement/ranking fails:
 - Uses relevance sorting without LLM assistance
 - Returns up to 5 papers
 
+**Infographic Generation Fallbacks** ✨ **NEW!**
+If image generation model is unavailable:
+- Returns structured summary with all key sections
+- Provides suggestions for external design tools (Canva, Adobe Express, etc.)
+- Logs detailed error information for debugging
+- Graceful degradation ensures users still get valuable content
+
 ## Gradio Interface Structure
 
 **Tab 1: Chat (Multimodal)**
@@ -110,12 +124,21 @@ If LLM-based refinement/ranking fails:
   - Get Detailed Explanation (uses explainer prompt)
   - Create Social Media Post (uses post prompt)
 
-**Tab 3: LLM Thinking Process Logs**
+**Tab 3: Generate Infographic** ✨ **NEW!**
+- Two input methods:
+  - **From Text**: Paste paper summary or full text directly
+  - **From PDF**: Use uploaded PDF from Tab 2
+- Real-time image generation with status updates
+- Inline preview of generated infographics
+- Download button for saving images
+- Automated saving to `generated_infographics/` folder
+
+**Tab 4: LLM Thinking Process Logs**
 - Real-time log viewer with level filtering
 - Manual refresh button (no auto-refresh due to Gradio version compatibility)
 - Displays formatted logs from `LogBuffer`
 
-**Tab 4: Settings**
+**Tab 5: Settings**
 - Dynamic log level control (DEBUG/INFO/WARNING/ERROR)
 - Emoji legend for log interpretation
 
@@ -136,11 +159,12 @@ If LLM-based refinement/ranking fails:
 
 ### MCP Server Integration
 
-The application registers 4 API endpoints accessible via MCP:
+The application registers 5 API endpoints accessible via MCP:
 - `retrieve_papers`
 - `explain_paper`
 - `write_social_post`
 - `process_pdf`
+- `generate_infographic` ✨ **NEW!**
 
 These allow external tools (like Claude Desktop) to call the functions directly.
 
@@ -159,17 +183,26 @@ These allow external tools (like Claude Desktop) to call the functions directly.
 - 🔍 Function called
 - 📚 Data retrieved
 - 📎 File attached/uploaded
+- 🎨 Infographic generation (NEW!)
+- 📊 Structured summary (NEW!)
+- 🖼️ Image generation (NEW!)
 
 ## Modifying Prompts
 
 To change AI behavior:
 
-1. **For paper explanations**: Edit `Explainer_prompt.txt`
+1. **For paper explanations**: Edit `prompts/Explainer_prompt.txt`
    - Changes language, structure, or detail level of explanations
    - Reloaded on each function call (no restart needed)
 
-2. **For social media posts**: Edit `paper_to_post.txt`
+2. **For social media posts**: Edit `prompts/paper_to_post.txt`
    - Changes tone, length, or format of generated posts
+   - Reloaded on each function call (no restart needed)
+
+3. **For infographic design** ✨ **NEW!**: Edit `prompts/infographic_prompt.txt`
+   - Customizes visual style, layout, and design principles
+   - Adjusts section structure and content organization
+   - Modifies target audience and presentation format
    - Reloaded on each function call (no restart needed)
 
 ## Common Gotchas
@@ -184,12 +217,39 @@ To change AI behavior:
 
 5. **Large PDFs**: First 10,000 characters used for processing to stay within token limits
 
+6. **Infographic generation model availability** ✨ **NEW!**: Image generation requires Gemini 2.0 or later with image generation capabilities. If unavailable, the system provides a structured summary that can be used with external design tools (Canva, Adobe Express, etc.)
+
+7. **Generated infographics storage**: Images are saved to `generated_infographics/` folder with timestamped filenames. The folder is in `.gitignore` to avoid repository bloat.
+
 ## Development Notes
 
-When adding new tools/functions:
+### Adding New Tools/Functions
 
-1. Define the function in `demo.py`
-2. Add tool declaration to `tools` list with proper schema
-3. Add function to `function_map` dictionary
-4. Register API endpoint with `gr.api()` if needed for MCP access
-5. Add logging statements following emoji convention
+Follow this pattern (see `src/tools/infographic_generator.py` as reference):
+
+1. **Create tool module**: Define function in `src/tools/your_tool.py`
+   - Add comprehensive logging with emoji indicators
+   - Include error handling and fallbacks
+   - Load any required prompts from `prompts/` directory
+
+2. **Update tool registry**: Edit `src/utils/tool_registry.py`
+   - Add tool declaration with proper schema
+   - Add function to `function_map` dictionary
+
+3. **Update imports**:
+   - Add to `src/tools/__init__.py`
+   - Import in `src/main.py`
+
+4. **Create UI handler** (optional): Add module to `src/ui/`
+   - Create user-facing functions
+   - Add to `src/ui/__init__.py`
+
+5. **Add to main UI**: Update `src/main.py`
+   - Add tab or interface elements
+   - Wire up event handlers
+   - Register API endpoint with `gr.api()` for MCP access
+
+6. **Update documentation**:
+   - Add to `CLAUDE.md` with implementation details
+   - Update `README.md` with user-facing information
+   - Add relevant emojis to logging legend

@@ -38,3 +38,9 @@ flagged/
 # Temporary files
 *.tmp
 *.bak
+
+# Generated infographics (keep directory structure)
+generated_infographics/*.jpg
+generated_infographics/*.jpeg
+generated_infographics/*.png
+!generated_infographics/README.md

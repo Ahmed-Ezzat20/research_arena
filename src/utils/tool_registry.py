@@ -8,6 +8,7 @@ from src.tools import (
     explain_research_paper,
     write_social_media_post,
     process_uploaded_pdf,
+    generate_paper_infographic,
 )
 
 
@@ -71,6 +72,20 @@ tools = [
                     "required": ["pdf_path"],
                 },
             },
+            {
+                "name": "generate_paper_infographic",
+                "description": "Generate a beautiful infographic visualization from a research paper summary. Creates a visually stunning image perfect for social media sharing and presentations.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "paper_info": {
+                            "type": "string",
+                            "description": "The research paper information or summary to visualize as an infographic",
+                        }
+                    },
+                    "required": ["paper_info"],
+                },
+            },
         ]
     }
 ]
@@ -81,4 +96,5 @@ function_map = {
     "explain_research_paper": explain_research_paper,
     "write_social_media_post": write_social_media_post,
     "process_uploaded_pdf": process_uploaded_pdf,
+    "generate_paper_infographic": generate_paper_infographic,
 }
