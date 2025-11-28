@@ -1,6 +1,18 @@
 # Core dependencies
 gradio>=4.0.0
 google-generativeai>=0.3.0
+arxiv>=2.0.0
+python-dotenv>=1.0.0
+
+# PDF processing
+pypdf>=3.0.0
+
+# Standard library dependencies (included for completeness, but not needed to install)
+# json, logging, os, datetime are part of Python's standard library
+
+# Core dependencies
+gradio>=4.0.0
+google-generativeai>=0.3.0
 python-dotenv>=1.0.0
 
 # Research paper tools
