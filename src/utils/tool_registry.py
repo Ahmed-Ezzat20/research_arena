@@ -10,6 +10,7 @@ from src.tools import (
     process_uploaded_pdf,
     generate_paper_infographic,
     verify_document_sources,
+    recommend_similar_papers,
 )
 
 
@@ -109,6 +110,24 @@ tools = [
                     "required": ["document_text"],
                 },
             },
+            {
+                "name": "recommend_similar_papers",
+                "description": "Recommend similar research papers based on a given paper's DOI, arXiv ID, title, or content. Uses Semantic Scholar's recommendation engine to find contextually similar papers that may be relevant for literature review.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "paper_info": {
+                            "type": "string",
+                            "description": "Paper information: DOI (e.g., '10.xxxx/xxxx'), arXiv ID (e.g., 'arXiv:2101.12345'), paper title, or paper content/abstract",
+                        },
+                        "num_recommendations": {
+                            "type": "integer",
+                            "description": "Number of similar papers to recommend (default: 10, max: 20)",
+                        }
+                    },
+                    "required": ["paper_info"],
+                },
+            },
         ]
     }
 ]
@@ -121,4 +140,5 @@ function_map = {
     "process_uploaded_pdf": process_uploaded_pdf,
     "generate_paper_infographic": generate_paper_infographic,
     "verify_document_sources": verify_document_sources,
+    "recommend_similar_papers": recommend_similar_papers,
 }

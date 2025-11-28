@@ -19,6 +19,11 @@ from .verification import (
     quick_verify_text_references,
     quick_verify_text_claims,
 )
+from .recommendations import (
+    recommend_from_text,
+    recommend_from_pdf,
+    quick_recommend_by_id,
+)
 
 __all__ = [
     "chat",
@@ -36,4 +41,7 @@ __all__ = [
     "verify_pdf_input",
     "quick_verify_text_references",
     "quick_verify_text_claims",
+    "recommend_from_text",
+    "recommend_from_pdf",
+    "quick_recommend_by_id",
 ]

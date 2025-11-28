@@ -20,6 +20,9 @@ from src.ui import (
     verify_pdf_input,
     quick_verify_text_references,
     quick_verify_text_claims,
+    recommend_from_text,
+    recommend_from_pdf,
+    quick_recommend_by_id,
 )
 from src.tools import (
     retrieve_related_papers,
@@ -28,6 +31,7 @@ from src.tools import (
     process_uploaded_pdf,
     generate_paper_infographic,
     verify_document_sources,
+    recommend_similar_papers,
 )
 
 
@@ -316,6 +320,122 @@ def create_app():
                 - For best results, use documents with DOIs in references
                 """)
 
+            # Similar Papers Recommender Tab
+            with gr.Tab("📚 Find Similar Papers"):
+                gr.Markdown("### Similar Paper Recommender")
+                gr.Markdown("""
+                Discover contextually similar research papers! This tool helps you:
+                - 🔍 Find related work for literature reviews
+                - 📊 Explore research in similar domains
+                - 🎯 Identify influential papers in your area
+                - 🔗 Build comprehensive reference lists
+                """)
+
+                with gr.Tabs():
+                    # Tab for text/ID input
+                    with gr.Tab("🔍 By DOI/arXiv/Title"):
+                        gr.Markdown("Enter paper information:")
+                        recommend_input = gr.Textbox(
+                            label="📄 Paper Information",
+                            placeholder="Enter DOI (10.xxxx/xxxx), arXiv ID (arXiv:2101.12345), or paper title...",
+                            lines=3
+                        )
+
+                        num_recommendations = gr.Slider(
+                            minimum=1,
+                            maximum=20,
+                            value=10,
+                            step=1,
+                            label="Number of Recommendations",
+                            info="How many similar papers to find"
+                        )
+
+                        recommend_btn = gr.Button("📚 Find Similar Papers", variant="primary", size="lg")
+
+                        recommendations_output = gr.Textbox(
+                            label="📋 Similar Papers",
+                            lines=30,
+                            max_lines=50,
+                            interactive=False
+                        )
+
+                        recommend_btn.click(
+                            fn=recommend_from_text,
+                            inputs=[recommend_input, num_recommendations],
+                            outputs=[recommendations_output]
+                        )
+
+                    # Tab for PDF input
+                    with gr.Tab("📄 From PDF"):
+                        gr.Markdown("Get recommendations based on an uploaded PDF:")
+                        recommend_pdf_path_display = gr.Textbox(
+                            label="Current PDF",
+                            placeholder="Upload a PDF in the 'Upload PDF' tab first",
+                            interactive=False
+                        )
+
+                        num_recommendations_pdf = gr.Slider(
+                            minimum=1,
+                            maximum=20,
+                            value=10,
+                            step=1,
+                            label="Number of Recommendations",
+                            info="How many similar papers to find"
+                        )
+
+                        recommend_pdf_btn = gr.Button("📚 Find Similar Papers from PDF", variant="primary", size="lg")
+
+                        recommendations_pdf_output = gr.Textbox(
+                            label="📋 Similar Papers",
+                            lines=30,
+                            max_lines=50,
+                            interactive=False
+                        )
+
+                        # Update display when PDF is uploaded
+                        pdf_path_store.change(
+                            fn=lambda x: x,
+                            inputs=[pdf_path_store],
+                            outputs=[recommend_pdf_path_display]
+                        )
+
+                        recommend_pdf_btn.click(
+                            fn=recommend_from_pdf,
+                            inputs=[pdf_path_store, num_recommendations_pdf],
+                            outputs=[recommendations_pdf_output]
+                        )
+
+                gr.Markdown("---")
+                gr.Markdown("""
+                **🔍 How It Works:**
+
+                **Input Methods:**
+                - **DOI**: Most accurate (e.g., 10.1145/3394486.3403043)
+                - **arXiv ID**: Great for preprints (e.g., arXiv:2101.12345)
+                - **Paper Title**: Searches and finds similar papers
+                - **PDF Upload**: Analyzes content for recommendations
+
+                **Recommendation Quality:**
+                - Powered by Semantic Scholar's citation network
+                - Based on co-citations, references, and content similarity
+                - Includes highly-cited and recent papers
+                - Contextually relevant to your research area
+
+                **Information Provided:**
+                - Paper titles and authors
+                - Publication year and venue
+                - Citation counts (impact indicator)
+                - Abstracts for quick relevance assessment
+                - Direct links (DOI, arXiv, Semantic Scholar)
+
+                **💡 Tips:**
+                - Use DOI or arXiv ID for best results
+                - Adjust number of recommendations based on your needs
+                - Check abstracts to verify relevance
+                - Follow links to access full papers
+                - High citation counts often indicate influential work
+                """)
+
             # Logs Tab
             with gr.Tab("📊 LLM Thinking Process Logs"):
                 gr.Markdown("### View the LLM's Thinking Process")
@@ -415,6 +535,7 @@ def create_app():
         gr.api(process_uploaded_pdf, api_name="process_pdf")
         gr.api(generate_paper_infographic, api_name="generate_infographic")
         gr.api(verify_document_sources, api_name="verify_sources")
+        gr.api(recommend_similar_papers, api_name="recommend_papers")
 
     return demo
 

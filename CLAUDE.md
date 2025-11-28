@@ -46,14 +46,15 @@ pip install gradio google-generativeai arxiv python-dotenv pypdf
 - All LLM interactions logged with emoji-based visual indicators
 
 **2. Tool/Function System**
-The assistant has 6 registered tools that Gemini can call:
+The assistant has 7 registered tools that Gemini can call:
 
 - `retrieve_related_papers(query)` - Searches arXiv with LLM-refined queries and LLM-ranked results
 - `explain_research_paper(paper_info)` - Explains papers using the explainer prompt
 - `write_social_media_post(explanation)` - Creates LinkedIn posts using the post prompt
 - `process_uploaded_pdf(pdf_path)` - Analyzes uploaded PDFs
 - `generate_paper_infographic(paper_info)` - Generates visual infographics from paper summaries
-- `verify_document_sources(document_text, verify_claims, verify_references)` - **NEW!** Advanced source verification with reference validation and claim fact-checking
+- `verify_document_sources(document_text, verify_claims, verify_references)` - Advanced source verification with reference validation and claim fact-checking
+- `recommend_similar_papers(paper_info, num_recommendations)` - **NEW!** Finds contextually similar papers using Semantic Scholar's recommendation engine
 
 **3. Multimodal Chat (`demo.py:426-570`)**
 - Handles both text and file uploads (PDFs, images)
@@ -146,7 +147,7 @@ If image generation model is unavailable:
 - Download button for saving images
 - Automated saving to `generated_infographics/` folder
 
-**Tab 4: Verify Sources** ✨ **NEW!**
+**Tab 4: Verify Sources**
 - Advanced source verification with two sub-tabs:
   - **From Text**: Paste document text directly
   - **From PDF**: Use uploaded PDF from Tab 2
@@ -160,12 +161,27 @@ If image generation model is unavailable:
 - Processing time: 2-10 minutes depending on document size
 - Rate-limited API calls to respect academic database policies
 
-**Tab 5: LLM Thinking Process Logs**
+**Tab 5: Find Similar Papers** ✨ **NEW!**
+- Discover contextually similar research papers
+- Two input methods:
+  - **By DOI/arXiv/Title**: Direct identifier or title input
+  - **From PDF**: Use uploaded PDF from Tab 2
+- Adjustable number of recommendations (1-20, default: 10)
+- Displays for each recommended paper:
+  - Title and authors
+  - Year and venue/journal
+  - Citation count (impact indicator)
+  - Abstract (truncated to 400 chars)
+  - Direct links (DOI, arXiv, Semantic Scholar)
+- Powered by Semantic Scholar's recommendation API
+- Based on citation network and content similarity
+
+**Tab 6: LLM Thinking Process Logs**
 - Real-time log viewer with level filtering
 - Manual refresh button (no auto-refresh due to Gradio version compatibility)
 - Displays formatted logs from `LogBuffer`
 
-**Tab 6: Settings**
+**Tab 7: Settings**
 - Dynamic log level control (DEBUG/INFO/WARNING/ERROR)
 - Emoji legend for log interpretation
 
@@ -186,13 +202,14 @@ If image generation model is unavailable:
 
 ### MCP Server Integration
 
-The application registers 6 API endpoints accessible via MCP:
+The application registers 7 API endpoints accessible via MCP:
 - `retrieve_papers`
 - `explain_paper`
 - `write_social_post`
 - `process_pdf`
 - `generate_infographic`
-- `verify_sources` ✨ **NEW!**
+- `verify_sources`
+- `recommend_papers` ✨ **NEW!**
 
 These allow external tools (like Claude Desktop) to call the functions directly.
 

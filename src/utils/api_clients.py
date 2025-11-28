@@ -88,6 +88,44 @@ class SemanticScholarAPI:
             logger.error(f"❌ Error retrieving DOI {doi}: {str(e)}")
             return None
 
+    def get_recommendations(self, paper_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Get paper recommendations from Semantic Scholar.
+
+        Args:
+            paper_id: Paper identifier (can be Semantic Scholar ID, DOI:xxx, ARXIV:xxx)
+            limit: Maximum number of recommendations (default: 10)
+
+        Returns:
+            List of recommended paper dictionaries
+        """
+        try:
+            logger.debug(f"🔍 Getting recommendations for paper: {paper_id}")
+
+            url = f"{self.BASE_URL}/paper/{paper_id}/recommendations"
+            params = {
+                'fields': 'title,authors,year,abstract,citationCount,url,externalIds,venue,paperId',
+                'limit': limit
+            }
+
+            response = self.session.get(url, params=params, timeout=15)
+
+            if response.status_code == 404:
+                logger.warning(f"⚠️ Paper not found or no recommendations available: {paper_id}")
+                return []
+
+            response.raise_for_status()
+
+            data = response.json()
+            recommendations = data.get('recommendedPapers', [])
+
+            logger.info(f"✅ Found {len(recommendations)} recommendations")
+            return recommendations
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"❌ Error getting recommendations for {paper_id}: {str(e)}")
+            return []
+
 
 class CrossRefAPI:
     """Client for CrossRef API."""
