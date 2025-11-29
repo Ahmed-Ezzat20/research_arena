@@ -37,8 +37,6 @@ def create_mcp_server() -> FastMCP:
     # Create FastMCP instance
     mcp = FastMCP(
         name=MCP_SERVER_NAME,
-        version=MCP_SERVER_VERSION,
-        description=MCP_SERVER_DESCRIPTION,
     )
 
     # Initialize managers
