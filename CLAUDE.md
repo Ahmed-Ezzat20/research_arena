@@ -56,11 +56,15 @@ The assistant has 7 registered tools that Gemini can call:
 - `verify_document_sources(document_text, verify_claims, verify_references)` - Advanced source verification with reference validation and claim fact-checking
 - `recommend_similar_papers(paper_info, num_recommendations)` - **NEW!** Finds contextually similar papers using Semantic Scholar's recommendation engine
 
-**3. Multimodal Chat (`demo.py:426-570`)**
+**3. Multimodal Chat (`src/ui/chat.py`)**
 - Handles both text and file uploads (PDFs, images)
 - Files uploaded directly to Gemini API using `genai.upload_file()`
 - Agentic loop handles tool calls with malformed call detection and recovery
 - Max 10 iterations with argument truncation (50,000 char limit) to prevent API issues
+- **System instructions** prevent conversational responses - shows complete tool outputs
+  - For paper searches: Shows ALL paper details (titles, authors, dates, summaries, URLs)
+  - Prevents LLM from asking "what do you want to do next?"
+  - Applied to both multimodal (`_handle_multimodal_message`) and text-only (`_handle_text_message`) handlers
 
 **4. Logging System (`demo.py:18-86`)**
 - Custom `LogBuffer` class stores last 1000 log entries in memory
@@ -293,23 +297,29 @@ To change AI behavior:
 
 ## Common Gotchas
 
-1. **Long text in function arguments**: Automatically truncated at 50,000 chars to prevent malformed calls
+1. **LLM over-conversationalizing tool outputs**: System instructions prevent this issue
+   - Without system instructions, LLM may generate conversational responses like "I found 5 papers, what would you like to do next?" instead of showing actual paper details
+   - Fix: Both chat handlers (`_handle_multimodal_message` and `_handle_text_message`) in `src/ui/chat.py` include system instructions
+   - System instruction tells LLM to present COMPLETE results without asking follow-up questions
+   - Especially important for paper searches to show ALL details (titles, authors, dates, summaries, URLs)
 
-2. **PDF text extraction**: If pypdf/PyPDF2 not installed, users get clear error with installation instructions
+2. **Long text in function arguments**: Automatically truncated at 50,000 chars to prevent malformed calls
 
-3. **Gradio version compatibility**: The code avoids newer Gradio features like `theme`, `show_copy_button`, and `every` parameter
+3. **PDF text extraction**: If pypdf/PyPDF2 not installed, users get clear error with installation instructions
 
-4. **Agentic loops**: Limited to 10 iterations to prevent infinite loops from malformed responses
+4. **Gradio version compatibility**: The code avoids newer Gradio features like `theme`, `show_copy_button`, and `every` parameter
 
-5. **Large PDFs**: First 10,000 characters used for processing to stay within token limits
+5. **Agentic loops**: Limited to 10 iterations to prevent infinite loops from malformed responses
 
-6. **Infographic generation model availability** ✨ **NEW!**: Image generation requires Gemini 2.0 or later with image generation capabilities. If unavailable, the system provides a structured summary that can be used with external design tools (Canva, Adobe Express, etc.)
+6. **Large PDFs**: First 10,000 characters used for processing to stay within token limits
 
-7. **Generated infographics storage**: Images are saved to `generated_infographics/` folder with timestamped filenames. The folder is in `.gitignore` to avoid repository bloat.
+7. **Infographic generation model availability** ✨ **NEW!**: Image generation requires Gemini 2.0 or later with image generation capabilities. If unavailable, the system provides a structured summary that can be used with external design tools (Canva, Adobe Express, etc.)
 
-8. **Source verification API rate limits** ✨ **NEW!**: Verification respects API rate limits (2 calls/sec default) to avoid being blocked by Semantic Scholar and CrossRef. Large documents with many references may take 5-10 minutes.
+8. **Generated infographics storage**: Images are saved to `generated_infographics/` folder with timestamped filenames. The folder is in `.gitignore` to avoid repository bloat.
 
-9. **Verification accuracy limitations** ✨ **NEW!**:
+9. **Source verification API rate limits** ✨ **NEW!**: Verification respects API rate limits (2 calls/sec default) to avoid being blocked by Semantic Scholar and CrossRef. Large documents with many references may take 5-10 minutes.
+
+10. **Verification accuracy limitations** ✨ **NEW!**:
    - Reference validation depends on DOI or accurate title/author matches
    - Claim verification depends on available research evidence
    - Non-English papers may have lower matching success rates
