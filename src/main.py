@@ -50,15 +50,14 @@ def create_app():
                 # Chat Interface
                 chat_interface = gr.ChatInterface(
                     fn=chat,
-                    type="messages",
                     multimodal=True,
                     examples=[
-                        {"text": "Find recent papers on transformer models in NLP"},
-                        {"text": "Explain this paper in simple terms", "files": []},
-                        {"text": "Create a social media post about this research"},
-                        {"text": "Generate an infographic from this paper summary"},
-                        {"text": "Verify the sources and claims in this document"},
-                        {"text": "Recommend similar papers to arXiv:2103.14030"},
+                        "Find recent papers on transformer models in NLP",
+                        "Explain this paper in simple terms",
+                        "Create a social media post about this research",
+                        "Generate an infographic from this paper summary",
+                        "Verify the sources and claims in this document",
+                        "Recommend similar papers to arXiv:2103.14030",
                     ],
                     cache_examples=False,
                 )
