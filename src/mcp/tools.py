@@ -19,9 +19,8 @@ from src.tools import (
     recommend_similar_papers,
 )
 
-# Import provider
-from src.providers.gemini import GeminiProvider
-from src.config import GEMINI_API_KEY, GEMINI_MODEL_NAME
+# Import provider factory (uses LLM_PROVIDER env var for multi-provider support)
+from src.core.llm_provider import get_llm
 
 logger = logging.getLogger(__name__)
 
@@ -30,10 +29,16 @@ _provider = None
 
 
 def get_provider():
-    """Get or create the global provider instance."""
+    """
+    Get or create the global provider instance.
+
+    Uses the provider factory which respects LLM_PROVIDER environment variable.
+    This enables multi-provider support (Gemini, OpenAI, Anthropic, etc.)
+    """
     global _provider
     if _provider is None:
-        _provider = GeminiProvider(api_key=GEMINI_API_KEY, model_name=GEMINI_MODEL_NAME)
+        _provider = get_llm()  # Uses factory pattern - respects LLM_PROVIDER env var
+        logger.info(f"✅ MCP tools using provider: {_provider.provider_name}")
     return _provider
 
 
