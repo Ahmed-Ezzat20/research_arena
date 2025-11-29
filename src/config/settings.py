@@ -15,7 +15,7 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")  # Default to Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Model configuration
-GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-2.0-flash-exp")
+GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "models/gemini-flash-latest")
 
 # Logging configuration
 MAX_LOG_BUFFER_SIZE = 1000
