@@ -1,4 +1,4 @@
-"""UI module for the Agentic Research Assistant."""
+"""UI module for Research Arena - Streamlined 2-tab interface."""
 
 from .chat import chat
 from .pdf_upload import (
@@ -8,7 +8,7 @@ from .pdf_upload import (
     post_from_pdf,
 )
 from .logs import get_logs, clear_logs, refresh_logs
-from .settings import change_log_level
+from .logs import change_log_level
 from .infographic import (
     generate_infographic_from_text,
     generate_infographic_from_pdf,

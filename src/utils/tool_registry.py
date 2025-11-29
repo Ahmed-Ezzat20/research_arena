@@ -1,8 +1,11 @@
 """
-Tool registry and declarations for Gemini function calling.
+Tool registry and declarations for function calling.
 Maps tool names to their implementations and defines schemas.
+Supports both sync (legacy) and async (new) function maps.
 """
 
+from typing import Dict, Callable, List
+from src.providers.base import BaseLLMProvider
 from src.tools import (
     retrieve_related_papers,
     explain_research_paper,
@@ -14,13 +17,13 @@ from src.tools import (
 )
 
 
-# Define tool declarations for Gemini
+# Define tool declarations for Gemini (legacy format)
 tools = [
     {
         "function_declarations": [
             {
                 "name": "retrieve_related_papers",
-                "description": "Retrieve up to 5 recent arXiv papers matching the query",
+                "description": "Retrieve up to 5 recent arXiv papers matching the query. Uses LLM-refined queries and intelligent ranking.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -34,7 +37,7 @@ tools = [
             },
             {
                 "name": "explain_research_paper",
-                "description": "Explain a research paper in clear, non-technical language",
+                "description": "Explain a research paper in clear, non-technical language (Modern Standard Arabic with technical terms in English). Generates 500-600 word summaries with pros/cons tables.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -48,7 +51,7 @@ tools = [
             },
             {
                 "name": "write_social_media_post",
-                "description": "Create a social-media-friendly post summarizing the paper",
+                "description": "Create a social-media-friendly post (Arabic with Egyptian dialect) summarizing the paper. 200-300 words with multi-step generation.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -62,7 +65,7 @@ tools = [
             },
             {
                 "name": "process_uploaded_pdf",
-                "description": "Process and analyze an uploaded PDF research paper",
+                "description": "Process and analyze an uploaded PDF research paper. Extracts text and provides structured summary.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -76,7 +79,7 @@ tools = [
             },
             {
                 "name": "generate_paper_infographic",
-                "description": "Generate a beautiful infographic visualization from a research paper summary. Creates a visually stunning image perfect for social media sharing and presentations.",
+                "description": "Generate a beautiful academic infographic visualization from a research paper summary. Creates a visually stunning image perfect for social media sharing and presentations with 10 structured sections.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -132,7 +135,8 @@ tools = [
     }
 ]
 
-# Map function names to actual functions
+
+# Legacy synchronous function map (for backward compatibility)
 function_map = {
     "retrieve_related_papers": retrieve_related_papers,
     "explain_research_paper": explain_research_paper,
@@ -142,3 +146,36 @@ function_map = {
     "verify_document_sources": verify_document_sources,
     "recommend_similar_papers": recommend_similar_papers,
 }
+
+
+def get_async_function_map(provider: BaseLLMProvider) -> Dict[str, Callable]:
+    """
+    Get async function map with provider injected.
+    
+    Args:
+        provider: LLM provider instance to inject into tools
+        
+    Returns:
+        Dictionary mapping function names to async callables
+    """
+    return {
+        "retrieve_related_papers": lambda query: retrieve_related_papers(query, provider),
+        "explain_research_paper": lambda paper_info: explain_research_paper(paper_info, provider),
+        "write_social_media_post": lambda explanation: write_social_media_post(explanation, provider),
+        "process_uploaded_pdf": lambda pdf_path: process_uploaded_pdf(pdf_path, provider),
+        "generate_paper_infographic": lambda paper_info: generate_paper_infographic(paper_info, provider),
+        "verify_document_sources": lambda document_text, verify_claims=True, verify_references=True: 
+            verify_document_sources(document_text, provider, verify_claims, verify_references),
+        "recommend_similar_papers": lambda paper_info, num_recommendations=10: 
+            recommend_similar_papers(paper_info, provider, num_recommendations),
+    }
+
+
+def get_tool_schemas() -> List[Dict]:
+    """
+    Get tool schemas in a flat list format.
+    
+    Returns:
+        List of tool schema dictionaries
+    """
+    return tools[0]["function_declarations"]

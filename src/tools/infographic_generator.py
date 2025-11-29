@@ -1,45 +1,44 @@
 """
-Paper-to-Infographic Generator using Gemini's image generation capabilities.
-Creates visually stunning infographics from research paper summaries.
+Paper-to-Infographic Generator - Refactored with async and provider abstraction
+Creates visually stunning infographics from research paper summaries using Gemini's image generation.
 """
 
 import os
 import json
-import base64
 from datetime import datetime
 import google.generativeai as genai
-from src.config import GEMINI_MODEL_NAME
 from src.logging import logger
+from src.providers.base import BaseLLMProvider
 
 
-def load_infographic_prompt():
+def load_infographic_prompt() -> str:
     """Load the infographic generation prompt from file."""
     try:
         with open("prompts/infographic_prompt.txt", "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         logger.warning("⚠️ infographic_prompt.txt not found, using default prompt")
-        return """You are a creative designer. Create a detailed description of an infographic
-that summarizes a research paper. The infographic should be visually appealing, well-organized,
-and easy to understand."""
+        return """Create a professional academic infographic that visualizes this research paper.
+Use a clean, modern design with clear hierarchy and professional typography."""
 
 
-def generate_structured_summary(paper_info: str) -> dict:
+async def generate_structured_summary(
+    paper_info: str,
+    provider: BaseLLMProvider
+) -> dict:
     """
     Generate a structured summary of the paper broken down into key sections.
-
+    
     Args:
         paper_info: Research paper information or text
-
+        provider: LLM provider instance
+        
     Returns:
         dict: Structured summary with sections
     """
     logger.debug("📤 LLM REQUEST: Generating structured summary for infographic")
-
-    try:
-        summary_model = genai.GenerativeModel(model_name=GEMINI_MODEL_NAME)
-
-        summary_prompt = f"""
+    
+    summary_prompt = f"""
 Analyze this research paper and create a detailed structured summary for an academic infographic.
 
 Extract and organize the following sections:
@@ -62,28 +61,28 @@ For text fields, provide concise, clear text.
 Research Paper Information:
 {paper_info[:8000]}
 """
-
-        response = summary_model.generate_content(summary_prompt)
+    
+    try:
+        response = await provider.generate_simple(summary_prompt, temperature=0.5)
         logger.info("📥 LLM RESPONSE: Structured summary generated")
-
+        
         # Try to parse JSON response
         try:
             # Extract JSON from markdown code blocks if present
-            text = response.text.strip()
+            text = response.strip()
             if "```json" in text:
                 text = text.split("```json")[1].split("```")[0].strip()
             elif "```" in text:
                 text = text.split("```")[1].split("```")[0].strip()
-
+            
             summary_data = json.loads(text)
             logger.debug(f"  Parsed structured summary: {list(summary_data.keys())}")
             return summary_data
         except json.JSONDecodeError:
-            logger.warning("⚠️ Could not parse JSON, using text response")
-            # Fallback: return as single text block
+            logger.warning("⚠️ Could not parse JSON, using fallback structure")
             return {
                 "title_and_authors": "Research Paper Summary",
-                "research_problem": response.text[:300],
+                "research_problem": response[:300],
                 "background": "",
                 "methods": [],
                 "key_results": [],
@@ -93,7 +92,7 @@ Research Paper Information:
                 "future_directions": [],
                 "visual_suggestions": "Modern, professional color scheme"
             }
-
+    
     except Exception as e:
         logger.error(f"❌ ERROR generating structured summary: {str(e)}")
         return {
@@ -113,15 +112,15 @@ Research Paper Information:
 def create_infographic_prompt(summary_data: dict) -> str:
     """
     Create a detailed prompt for the image generation model.
-
+    
     Args:
         summary_data: Structured summary data
-
+        
     Returns:
         str: Detailed creative brief for image generation
     """
     prompt_template = load_infographic_prompt()
-
+    
     # Build a comprehensive academic infographic brief
     creative_brief = f"""
 {prompt_template}
@@ -167,57 +166,61 @@ DESIGN SPECIFICATIONS:
 Create a professional academic infographic suitable for conference presentations,
 research posters, and scholarly social media sharing.
 """
-
+    
     return creative_brief
 
 
-def generate_infographic_image(paper_info: str) -> tuple[str, dict]:
+async def generate_infographic_image(
+    paper_info: str,
+    provider: BaseLLMProvider
+) -> tuple[str, dict]:
     """
     Generate an infographic image from paper information.
-
+    
     Args:
         paper_info: Research paper information or text
-
+        provider: LLM provider instance (for summary generation)
+        
     Returns:
         tuple: (file_path to saved image, summary_data dict)
     """
-    logger.info(f"🔍 FUNCTION CALL: generate_infographic_image(paper_info length={len(paper_info)} chars)")
-
+    logger.info(f"🔍 Generating infographic ({len(paper_info)} chars input)")
+    
     try:
         # Step 1: Generate structured summary
         logger.info("📊 Step 1/3: Generating structured summary...")
-        summary_data = generate_structured_summary(paper_info)
-
+        summary_data = await generate_structured_summary(paper_info, provider)
+        
         # Step 2: Create detailed prompt for image generation
         logger.info("🎨 Step 2/3: Creating creative brief for image generation...")
         creative_prompt = create_infographic_prompt(summary_data)
         logger.debug(f"  Creative prompt length: {len(creative_prompt)} chars")
-
+        
         # Step 3: Generate image using Gemini's image generation
         logger.info("🖼️ Step 3/3: Generating infographic image...")
         logger.debug("📤 LLM REQUEST: Image generation")
-
+        
         # Use Gemini model for image generation
         # Note: Gemini 2.0 and later have image generation capabilities
         image_model = genai.GenerativeModel(model_name="gemini-2.0-flash-exp")
-
+        
         response = image_model.generate_content(
             creative_prompt,
             generation_config=genai.GenerationConfig(
                 response_mime_type="image/jpeg"
             )
         )
-
+        
         logger.info("📥 LLM RESPONSE: Image generated")
-
+        
         # Save the generated image
         output_dir = "generated_infographics"
         os.makedirs(output_dir, exist_ok=True)
-
+        
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"infographic_{timestamp}.jpg"
         filepath = os.path.join(output_dir, filename)
-
+        
         # Extract and save the image
         if hasattr(response, 'parts') and len(response.parts) > 0:
             image_part = response.parts[0]
@@ -230,9 +233,9 @@ def generate_infographic_image(paper_info: str) -> tuple[str, dict]:
                 raise ValueError("No inline_data found in response")
         else:
             raise ValueError("No image parts in response")
-
+        
         return filepath, summary_data
-
+    
     except Exception as e:
         logger.error(f"❌ ERROR in generate_infographic_image: {str(e)}")
         # Check if it's a model availability issue
@@ -252,26 +255,29 @@ Alternative approach:
 The structured summary has been logged and can be exported."""
         else:
             error_msg = f"Error generating infographic: {str(e)}"
-
+        
         return None, {"error": error_msg}
 
 
-def generate_paper_infographic(paper_info: str) -> str:
+async def generate_paper_infographic(
+    paper_info: str,
+    provider: BaseLLMProvider
+) -> str:
     """
     Main function to generate infographic from paper info.
-    Callable by Gemini as a tool.
-
+    
     Args:
         paper_info: Research paper information or text
-
+        provider: LLM provider instance
+        
     Returns:
         str: Success message with file path or error message
     """
-    logger.info(f"🔍 FUNCTION CALL: generate_paper_infographic(paper_info length={len(paper_info)} chars)")
-
+    logger.info(f"🔍 Generating paper infographic ({len(paper_info)} chars)")
+    
     try:
-        filepath, summary_data = generate_infographic_image(paper_info)
-
+        filepath, summary_data = await generate_infographic_image(paper_info, provider)
+        
         if filepath:
             success_msg = f"""✅ Infographic generated successfully!
 
@@ -340,7 +346,7 @@ You can use this structured summary with external design tools like:
 • PowerPoint/Keynote - Create custom poster layouts
 """
             return summary_text
-
+    
     except Exception as e:
         logger.error(f"❌ ERROR in generate_paper_infographic: {str(e)}")
         return f"Error generating infographic: {str(e)}"
