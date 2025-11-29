@@ -11,6 +11,9 @@ load_dotenv()
 # LLM Provider Configuration
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")  # Default to Gemini
 
+# API Keys
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 # Model configuration
 GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL_NAME", "gemini-2.0-flash-exp")
 

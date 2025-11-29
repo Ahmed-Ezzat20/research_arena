@@ -1,6 +1,7 @@
 """Configuration module for the Agentic Research Assistant."""
 
 from .settings import (
+    GEMINI_API_KEY,
     GEMINI_MODEL_NAME,
     MAX_LOG_BUFFER_SIZE,
     DEFAULT_LOG_LEVEL,
@@ -10,6 +11,7 @@ from .settings import (
 )
 
 __all__ = [
+    "GEMINI_API_KEY",
     "GEMINI_MODEL_NAME",
     "MAX_LOG_BUFFER_SIZE",
     "DEFAULT_LOG_LEVEL",
