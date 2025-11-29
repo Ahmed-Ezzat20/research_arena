@@ -201,12 +201,18 @@ class GeminiProvider(BaseLLMProvider):
 
             # Extract text content
             content = None
-            if hasattr(response, 'text'):
-                try:
-                    content = response.text
-                except Exception:
-                    # Response might not have text if it's a function call
-                    pass
+            # Only try to get text if there are no function calls
+            if not function_calls:
+                if hasattr(response, 'text'):
+                    try:
+                        content = response.text
+                    except Exception as e:
+                        # Response might not have text if it's a function call
+                        logger.debug(f"Could not extract text from response: {e}")
+                        pass
+            else:
+                # If there are function calls, don't try to extract text
+                logger.debug("Response contains function calls, skipping text extraction")
 
             # Get finish reason
             finish_reason = "stop"
