@@ -226,7 +226,7 @@ async def _handle_text_message(
         tools.append(Tool(
             name=schema["name"],
             description=schema["description"],
-            parameters=schema["input_schema"]
+            parameters=schema["parameters"]
         ))
     
     # Create initial message
