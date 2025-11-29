@@ -13,11 +13,7 @@ def create_app():
     """Create and configure the Gradio application with 2-tab interface."""
     
     with gr.Blocks(
-        title="Research Arena - Agentic Research Assistant",
-        theme=gr.themes.Soft(
-            primary_hue="blue",
-            secondary_hue="slate",
-        )
+        title="Research Arena - Agentic Research Assistant"
     ) as demo:
         # Header
         gr.Markdown("""
