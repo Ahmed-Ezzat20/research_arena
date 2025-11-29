@@ -6,10 +6,9 @@ making them accessible to MCP clients like Claude Desktop.
 """
 
 import logging
-import asyncio
 from typing import Dict, Any
 
-# Import existing tools (will be refactored to async later)
+# Import async tools
 from src.tools import (
     retrieve_related_papers,
     explain_research_paper,
@@ -20,7 +19,22 @@ from src.tools import (
     recommend_similar_papers,
 )
 
+# Import provider
+from src.providers.gemini import GeminiProvider
+from src.config import GEMINI_API_KEY, GEMINI_MODEL_NAME
+
 logger = logging.getLogger(__name__)
+
+# Initialize global provider for MCP tools
+_provider = None
+
+
+def get_provider():
+    """Get or create the global provider instance."""
+    global _provider
+    if _provider is None:
+        _provider = GeminiProvider(api_key=GEMINI_API_KEY, model_name=GEMINI_MODEL_NAME)
+    return _provider
 
 
 # ============================================================================
@@ -142,10 +156,8 @@ TOOL_SCHEMAS = {
 
 
 # ============================================================================
-# Async Tool Wrappers
+# Async Tool Wrappers (Updated to use async tools with provider)
 # ============================================================================
-# These wrappers ensure all tools are async for MCP compatibility.
-# Once tools are refactored to be natively async, these can be simplified.
 
 async def mcp_retrieve_related_papers(query: str) -> str:
     """
@@ -158,8 +170,8 @@ async def mcp_retrieve_related_papers(query: str) -> str:
         Formatted string with paper results
     """
     logger.info(f"🔍 MCP Tool: retrieve_related_papers(query='{query[:50]}...')")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, retrieve_related_papers, query)
+    provider = get_provider()
+    result = await retrieve_related_papers(query, provider)
     return result
 
 
@@ -174,8 +186,8 @@ async def mcp_explain_research_paper(paper_info: str) -> str:
         Explanation text
     """
     logger.info(f"🔍 MCP Tool: explain_research_paper")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, explain_research_paper, paper_info)
+    provider = get_provider()
+    result = await explain_research_paper(paper_info, provider)
     return result
 
 
@@ -190,8 +202,8 @@ async def mcp_write_social_media_post(explanation: str) -> str:
         Social media post text
     """
     logger.info(f"🔍 MCP Tool: write_social_media_post")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, write_social_media_post, explanation)
+    provider = get_provider()
+    result = await write_social_media_post(explanation, provider)
     return result
 
 
@@ -206,8 +218,8 @@ async def mcp_process_uploaded_pdf(pdf_path: str) -> str:
         Processed PDF summary
     """
     logger.info(f"🔍 MCP Tool: process_uploaded_pdf(pdf_path='{pdf_path}')")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, process_uploaded_pdf, pdf_path)
+    provider = get_provider()
+    result = await process_uploaded_pdf(pdf_path, provider)
     return result
 
 
@@ -222,8 +234,8 @@ async def mcp_generate_paper_infographic(paper_info: str) -> str:
         Result message with infographic path or structured data
     """
     logger.info(f"🔍 MCP Tool: generate_paper_infographic")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, generate_paper_infographic, paper_info)
+    provider = get_provider()
+    result = await generate_paper_infographic(paper_info, provider)
     return result
 
 
@@ -244,11 +256,8 @@ async def mcp_verify_document_sources(
         Verification report
     """
     logger.info(f"🔍 MCP Tool: verify_document_sources")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(
-        None,
-        lambda: verify_document_sources(document_text, verify_claims, verify_references)
-    )
+    provider = get_provider()
+    result = await verify_document_sources(document_text, provider, verify_claims, verify_references)
     return result
 
 
@@ -267,11 +276,7 @@ async def mcp_recommend_similar_papers(
         Recommendations text
     """
     logger.info(f"🔍 MCP Tool: recommend_similar_papers")
-    loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(
-        None,
-        lambda: recommend_similar_papers(paper_info, num_recommendations)
-    )
+    result = await recommend_similar_papers(paper_info, num_recommendations)
     return result
 
 
