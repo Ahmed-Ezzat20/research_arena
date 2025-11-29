@@ -97,12 +97,26 @@ async def _handle_multimodal_message(
     """Handle messages with file attachments using Gemini's native API."""
     from src.models import get_model_with_tools
     from src.utils import tools
-    
-    # Initialize model with tools
-    model = get_model_with_tools(tools)
-    
+    from src.config import GEMINI_MODEL_NAME
+
+    # System instruction to present tool results properly
+    system_instruction = """You are a research assistant. When you use tools and get results, present the COMPLETE results to the user clearly and directly.
+
+IMPORTANT:
+- For paper searches: Show ALL papers with their full details (titles, authors, dates, summaries, URLs)
+- For explanations: Present the complete explanation
+- For any tool output: Show the full results without summarizing or asking "what do you want to do next?"
+- Let the user see all the information, then they can ask follow-up questions if needed"""
+
+    # Initialize model with tools AND system instruction
+    model = genai.GenerativeModel(
+        model_name=GEMINI_MODEL_NAME,
+        tools=tools,
+        system_instruction=system_instruction
+    )
+
     # Start a chat session
-    logger.debug("🔧 Starting new chat session (multimodal)")
+    logger.debug("🔧 Starting new chat session (multimodal) with system instruction")
     chat_session = model.start_chat(history=[])
     
     # Send the message (with files)
@@ -228,9 +242,21 @@ async def _handle_text_message(
             description=schema["description"],
             parameters=schema["parameters"]
         ))
-    
-    # Create initial message
-    messages = [Message(role=MessageRole.USER, content=user_message)]
+
+    # System instruction
+    system_instruction = """You are a research assistant. When you use tools and get results, present the COMPLETE results to the user clearly and directly.
+
+IMPORTANT:
+- For paper searches: Show ALL papers with their full details (titles, authors, dates, summaries, URLs)
+- For explanations: Present the complete explanation
+- For any tool output: Show the full results without summarizing or asking "what do you want to do next?"
+- Let the user see all the information, then they can ask follow-up questions if needed"""
+
+    # Create initial messages with system instruction
+    messages = [
+        Message(role=MessageRole.SYSTEM, content=system_instruction),
+        Message(role=MessageRole.USER, content=user_message)
+    ]
     
     # Agentic loop
     iteration = 0
